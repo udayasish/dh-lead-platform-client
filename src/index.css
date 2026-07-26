@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-[14px] text-gray-700 antialiased transition-colors dark:bg-canvas-dark dark:text-slate-300;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-gray-900 dark:text-slate-100;
+  }
+}

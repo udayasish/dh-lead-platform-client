@@ -1,75 +1,90 @@
-# React + TypeScript + Vite
+# Lead Platform — Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend for the Lead Platform: a public lead capture form plus a role-based
+dashboard for managing the lead lifecycle.
 
-Currently, two official plugins are available:
+This repository holds the frontend. The API, database and full documentation live in
+[**dh-lead-platform-server**](https://github.com/udayasish/dh-lead-platform-server).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built for Digital Heroes Training Task.
 
-## React Compiler
+## Live demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| | |
+| --- | --- |
+| App | _add URL_ |
 
-## Expanding the ESLint configuration
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@dhlead.test` | `Admin@12345` |
+| Member | `member@dhlead.test` | `Member@12345` |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> Both accounts are listed on the sign-in page and fill the form on click.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Public capture form at `/capture` — no account needed
+- Lead list with search, status and assignee filters, sorting and pagination
+- Lead detail with status pipeline, assignment, notes and activity trail
+- Role-aware UI: admin-only actions are hidden, and members can only edit leads
+  assigned to them
+- Light / dark mode
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Permissions are enforced by the API. The UI mirrors them so users aren't shown
+actions that would be rejected.
 
+## Tech stack
+
+React 19, TypeScript, Vite, Redux Toolkit, React Router 7, React Hook Form,
+Tailwind CSS.
+
+## Getting started
+
+**Requirements:** Node.js 20+, and the
+[API](https://github.com/udayasish/dh-lead-platform-server) running locally.
+
+```bash
+git clone https://github.com/udayasish/dh-lead-platform-client.git
+cd dh-lead-platform-client
+
+cp .env.example .env
+npm install
+npm run dev                   # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Environment variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Variable | Description |
+| --- | --- |
+| `VITE_API_URL` | Backend origin, e.g. `http://localhost:4000` |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project structure
 
 ```
+src/
+├── api/                # typed API client with automatic token refresh
+├── components/         # shared UI + AuthLayout route guard
+├── conf/               # env config
+├── hooks/
+├── pages/
+├── store/              # Redux Toolkit slices
+└── utils/
+```
+
+**Notes**
+
+- All requests go through `api/client.ts`. On a `401` it refreshes the token pair and
+  retries once; concurrent calls share a single refresh promise, since refresh tokens
+  rotate.
+- Routes are guarded by `AuthLayout` (`requireRole="admin"` for the team page), and
+  admin-only controls are gated again at the component level.
+
+## Deployment
+
+Static build — `npm run build` outputs to `dist/`. Set `VITE_API_URL` to the deployed
+API origin at build time, and set the API's `CORS_ORIGIN` to this app's origin. Both
+must be served over HTTPS for auth cookies to work.
+
+---
+
+<sub>Built for <a href="https://digitalheroesco.com">Digital Heroes</a> Training Task.</sub>
